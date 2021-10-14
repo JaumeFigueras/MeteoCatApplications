@@ -15,9 +15,9 @@ def main(api_token, db_session):
     for variable_metadata in variables_metadata:
         var = Variable(variable_metadata['codi'], variable_metadata['nom'], variable_metadata['unitat'],
                        variable_metadata['acronim'], variable_metadata['tipus'], variable_metadata['decimals'])
-        session.add(var)
+        db_session.add(var)
         print("Adding variable metadata: {0:} ({1:})".format(variable_metadata['nom'], variable_metadata['codi']))
-    session.commit()
+    db_session.commit()
 
 
 if __name__ == "__main__":
