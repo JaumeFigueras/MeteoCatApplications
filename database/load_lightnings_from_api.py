@@ -26,15 +26,16 @@ def main(api_token, db_session, date, hour):
             hours_to_request = range(0, datetime.datetime.utcnow().hour)
     for i in hours_to_request:
         print("Getting data from: " + str(date) + " at hour " + str(i))
-        reqs = get_lightning_api_requests(db_session,
-                                          datetime.datetime(date.year, date.month, date.day, i, 0, 0, tzinfo=pytz.UTC),
-                                          datetime.datetime(date.year, date.month, date.day, i, 0, 0, tzinfo=pytz.UTC) +
-                                          datetime.timedelta(hours=1))
-        if len(reqs) == 1:
-            if reqs[0].result_code == 200:
+        requests = get_lightning_api_requests(db_session,
+                                              datetime.datetime(date.year, date.month, date.day, i, 0, 0,
+                                                                tzinfo=pytz.UTC),
+                                              datetime.datetime(date.year, date.month, date.day, i, 0, 0,
+                                                                tzinfo=pytz.UTC) + datetime.timedelta(hours=1))
+        if len(requests) == 1:
+            if requests[0].result_code == 200:
                 print("This request already exists")
                 continue
-        elif len(reqs) > 1:
+        elif len(requests) > 1:
             print("database inconsistency")
             return
         result = api.get_lightnings(api_token, date, i)
