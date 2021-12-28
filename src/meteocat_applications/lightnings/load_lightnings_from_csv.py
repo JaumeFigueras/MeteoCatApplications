@@ -118,9 +118,9 @@ if __name__ == "__main__":  # pragma: no cover
         print(ex)
         sys.exit(-1)
 
-    with session.begin():  # Open a transaction
-        # Process the CSV file and store it into the database
-        processed_year = process_lightnings(session, reader)
-        if processed_year is not None:
-            # Add the requests equivalencies to the database
-            process_requests(session, processed_year)
+    # with session.begin():  # Open a transaction
+    # Process the CSV file and store it into the database
+    processed_year = process_lightnings(session, reader)
+    if processed_year is not None:
+        # Add the requests equivalencies to the database
+        process_requests(session, processed_year)

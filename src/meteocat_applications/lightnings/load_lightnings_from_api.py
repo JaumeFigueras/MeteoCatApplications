@@ -58,6 +58,7 @@ def run_request(api_token, db_session, date):
     :type date: datetime.datetime
     :return: None
     """
+    # with session.begin():  # Open a transaction
     try:
         result = get_lightnings(api_token, date)
         lightning_api_request: LightningAPIRequest = result['lightning_api_request']
@@ -125,7 +126,6 @@ if __name__ == "__main__":  # pragma: no cover
             print(ex)
             sys.exit(-1)
 
-    with session.begin():  # Open a transaction
-        requests_to_perform = find_dates_to_issue_requests(session, args.date, args.hour)
-        for request_date in requests_to_perform:
-            run_request(args.api_token, session, request_date)
+    requests_to_perform = find_dates_to_issue_requests(session, args.date, args.hour)
+    for request_date in requests_to_perform:
+        run_request(args.api_token, session, request_date)
