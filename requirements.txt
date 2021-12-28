@@ -10,7 +10,7 @@ Flask-HTTPAuth==4.5.0
 Flask-SQLAlchemy==2.5.1
 freezegun==1.1.0
 GeoAlchemy2==0.9.4
-gisfire-meteocat-lib @ file:///home/jaume/codi/tesi/MeteoCatLib/dist/gisfire_meteocat_lib-0.1.0.tar.gz
+# gisfire-meteocat-lib @ file:///home/jaume/codi/tesi/MeteoCatLib/dist/gisfire_meteocat_lib-0.1.0.tar.gz
 greenlet==1.1.2
 idna==3.2
 iniconfig==1.1.1
