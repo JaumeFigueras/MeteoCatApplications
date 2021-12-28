@@ -4,6 +4,7 @@
 import pytest
 import zipfile
 import csv
+import json
 from pathlib import Path
 from io import TextIOWrapper
 
@@ -42,7 +43,7 @@ def lightnings_csv_2017_error():
 
 
 @pytest.fixture
-def number_of_lightnings_2017():
+def lightnings_csv_2017_number():
     """
     Returns the number of lightnings in the lightnings-2017.csv file
 
@@ -51,3 +52,22 @@ def number_of_lightnings_2017():
     """
     return 22886
 
+
+@pytest.fixture
+def lightnings_json_2021_11_10():
+    """
+    Opens a ZIP file (for space purposes) with a CSV lightnings file and returns a CSV reader object of the CSV file
+
+    :return: A CSV reader of a lightning file
+    :rtype: list
+    """
+    current_dir = Path(__file__).parent
+    zip_filename = str(current_dir) + '/lightnings-2021-11-10.zip'
+    archive = zipfile.ZipFile(zip_filename)
+    lightnings = list()
+    for i in range(24):
+        file_name = "{0:02d}".format(i) + '.json'
+        file = archive.open(file_name, 'r')
+        data = json.load(file)
+        lightnings.append(data)
+    return lightnings

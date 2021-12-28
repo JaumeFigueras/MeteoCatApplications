@@ -17,9 +17,6 @@ postgresql_schema = factories.postgresql('postgresql_session', dbname='test', lo
 ])
 
 pytest_plugins = [
-    'test.fixtures.sqlalchemy',
+    'test.fixtures.database',
     'test.fixtures.lightnings',
 ]
-
-
-

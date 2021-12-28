@@ -8,7 +8,12 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 @pytest.fixture(scope='function')
 def db_engine(postgresql_schema):
-    """yields a SQLAlchemy engine which is suppressed after the test session"""
+    """
+    Yields a SQLAlchemy engine which is suppressed after the test session
+
+    :param postgresql_schema: Postgresql database fixture
+    :return: SqlAlchemy database engine
+    """
     def db_creator():
         return postgresql_schema
 
@@ -21,13 +26,23 @@ def db_engine(postgresql_schema):
 
 @pytest.fixture(scope='function')
 def db_session_factory(db_engine):
-    """returns a SQLAlchemy scoped session factory"""
+    """
+    Returns a SQLAlchemy scoped session factory
+
+    :param db_engine: SqlAlchemy database engine
+    :return: A SqlAlchemy scoped session
+    """
     return scoped_session(sessionmaker(bind=db_engine))
 
 
 @pytest.fixture(scope='function')
 def db_session(db_session_factory):
-    """yields a SQLAlchemy connection which is rollbacked after the test"""
+    """
+    Yields a SQLAlchemy connection which is rollback after the test
+
+    :param db_session_factory: A SqlAlchemy scoped session
+    :return: A SqlAlchemy scoped session
+    """
     session_ = db_session_factory()
 
     yield session_

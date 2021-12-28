@@ -29,7 +29,6 @@ def process_lightnings(db_session, csv_reader):
     """
     next(csv_reader)  # Remove the header
     i = 0  # Counter for information purposes
-    db_session.begin()  # Open a transaction
     lightning = None
     for row in csv_reader:
         lightning = Lightning()
@@ -46,7 +45,7 @@ def process_lightnings(db_session, csv_reader):
             lightning.lon = float(row[9])
             lightning.lat = float(row[10])
         except ValueError as e:
-            print("Error found in record {0:}. Rolling back all changes".format(i))
+            print("Error found in record {0:}. Rolling back all changes. Exception text: {1:}".format(i, str(e)))
             db_session.rollback()
             return None
         db_session.add(lightning)
@@ -69,7 +68,6 @@ def process_requests(db_session, year):
     :return: None
     """
     date = datetime.datetime(year, 1, 1, 0, 0, 0, tzinfo=pytz.UTC)
-    db_session.begin()
     i = 0
     try:
         while date.year == year:
@@ -86,12 +84,13 @@ def process_requests(db_session, year):
             i += 1
         db_session.commit()
     except sqlalchemy.exc.SQLAlchemyError as e:
-        print("Error found in record {0:}. Rolling back all changes".format(i))
+        print("Error found in record {0:}. Rolling back all changes. Exception text: {1:}".format(i, str(e)))
         db_session.rollback()
 
 
 if __name__ == "__main__":  # pragma: no cover
     # Config the program arguments
+    # noinspection DuplicatedCode
     parser = argparse.ArgumentParser()
     parser.add_argument('-H', '--host', help='Host name were the database cluster is located')
     parser.add_argument('-p', '--port', type=int, help='Database cluster port')
@@ -119,8 +118,9 @@ if __name__ == "__main__":  # pragma: no cover
         print(ex)
         sys.exit(-1)
 
-    # Process the CSV file and store it into the database
-    processed_year = process_lightnings(session, reader)
-    if processed_year is not None:
-        # Add the requests equivalencies to the database
-        process_requests(session, processed_year)
+    with session.begin():  # Open a transaction
+        # Process the CSV file and store it into the database
+        processed_year = process_lightnings(session, reader)
+        if processed_year is not None:
+            # Add the requests equivalencies to the database
+            process_requests(session, processed_year)

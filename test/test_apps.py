@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json
-
 
 def test_database_init_01(postgresql_schema):
     """
@@ -19,5 +17,3 @@ def test_database_init_01(postgresql_schema):
     cursor.execute("SELECT count(*) FROM meteocat_lightning")
     record = cursor.fetchone()
     assert record[0] == 0
-
-
