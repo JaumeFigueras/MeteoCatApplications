@@ -14,9 +14,11 @@ postgresql_session = factories.postgresql_proc(port=None, unixsocketdir=socket_d
 postgresql_schema = factories.postgresql('postgresql_session', dbname='test', load=[
     str(test_folder) + '/database_init.sql',
     str(sql_meteocat_lib_folder) + '/meteocat_xdde.sql',
+    str(sql_meteocat_lib_folder) + '/meteocat_xema.sql',
 ])
 
 pytest_plugins = [
     'test.fixtures.database',
     'test.fixtures.lightnings',
+    'test.fixtures.stations',
 ]
