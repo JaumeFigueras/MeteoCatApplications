@@ -21,4 +21,5 @@ pytest_plugins = [
     'test.fixtures.database',
     'test.fixtures.lightnings',
     'test.fixtures.stations',
+    'test.fixtures.variables',
 ]

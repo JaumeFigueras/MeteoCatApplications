@@ -1,9 +1,6 @@
 import argparse
-import datetime
 import sys
 
-import pytz
-import requests.exceptions
 from gisfire_meteocat_lib.classes.weather_station import WeatherStation
 from gisfire_meteocat_lib.remote_api.meteocat_xema_api import get_weather_stations
 from sqlalchemy import create_engine
@@ -50,7 +47,7 @@ def main():  # pragma: no cover
     for station in stations:
         try:
             store_station_to_database(session, station)
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             return
 
 
