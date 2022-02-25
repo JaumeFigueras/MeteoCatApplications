@@ -27,7 +27,7 @@ def store_variables_to_database(db_session: Session, variables: List[Variable], 
                 process_variable = variable
             else:
                 process_variable = variable_list[0]
-            if not (process_variable.category == VariableCategory.CMV and process_variable.states is None):
+            if process_variable.category != VariableCategory.CMV or (process_variable.category == VariableCategory.CMV and hasattr(variable, 'states') and variable.states is not None):
                 for state in variable.states:
                     db_session.add(state)
                     relation = WeatherStationVariableStateAssociation()
@@ -73,9 +73,10 @@ def main():  # pragma: no cover
         print(ex)
         sys.exit(-1)
 
-    stations = get_weather_stations(session)
+    stations: List[WeatherStation] = get_weather_stations(session)
     for station in stations:
         try:
+            print("getting variables from station {0:} - {1:}".format(station.code, station.name))
             variables = get_variables_from_station(args.api_token, station)
             store_variables_to_database(session, variables, station)
         except SQLAlchemyError:
