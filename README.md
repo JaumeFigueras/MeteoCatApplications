@@ -24,3 +24,7 @@ a) meteocatlib: https://github.com/JaumeFigueras/MeteoCatLib/blob/main/dist/gisf
 
 YESTERDAY=$(date -d "yesterday 13:00" +'%Y-%m-%d')
 /home/gisfire/soft/MeteoCatApplications/venv/bin/python3 /home/gisfire/soft/MeteoCatApplications/src/meteocat_applications/lightnings/load_lightnings_from_api.py --host=localhost --port=5433 --database=gisfire --username=gisfireuser --password=... --date=$YESTERDAY --api-token=... >> /home/gisfire/logs/xdde.log 2>&1
+
+6. Load weather stations:
+
+./venv/bin/python3 ~/soft/MeteoCatApplications/src/meteocat_applications/stations_variables/load_stations_from_api-py --host=localhost --port=<port> --database=<database> --username=<user> --password=<password> 
