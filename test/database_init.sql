@@ -13,6 +13,18 @@ BEGIN
 END
 $do$;
 
+DO
+$do$
+BEGIN
+   IF NOT EXISTS (
+		SELECT FROM pg_catalog.pg_roles  -- SELECT list can be empty for this
+    	WHERE rolname = 'remotegisfireuser') THEN
+            CREATE ROLE remotegisfireuser WITH PASSWORD '1234';
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO remotegisfireuser;
+   END IF;
+END
+$do$;
+
 CREATE EXTENSION postgis;
 
 ALTER DATABASE test OWNER TO gisfireuser;
