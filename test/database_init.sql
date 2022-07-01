@@ -25,6 +25,7 @@ BEGIN
 END
 $do$;
 
+
 CREATE EXTENSION postgis;
 
 ALTER DATABASE test OWNER TO gisfireuser;
