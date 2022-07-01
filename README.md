@@ -27,6 +27,6 @@ YESTERDAY=$(date -d "yesterday 13:00" +'%Y-%m-%d')
 
 6. Load weather stations, variables and measures:
 
-./venv/bin/python3 -u ./src/meteocat_applications/stations_variables/load_stations_from_api-py --host=localhost --port=<port> --database=<database> --username=<user> --password=<password> --api-token=<token>
-./venv/bin/python3 -u ./src/meteocat_applications/stations_variables/load_variables_from_api-py --host=localhost --port=<port> --database=<database> --username=<user> --password=<password> --api-token=<token>
+./venv/bin/python3 -u ./src/meteocat_applications/stations_variables/load_stations_from_api.py --host=localhost --port=<port> --database=<database> --username=<user> --password=<password> --api-token=<token>
+./venv/bin/python3 -u ./src/meteocat_applications/stations_variables/load_variables_from_api.py --host=localhost --port=<port> --database=<database> --username=<user> --password=<password> --api-token=<token>
 ./venv/bin/python3 -u ./src/meteocat_applications/stations_variables/load_measures_from_csv.py --host=localhost --port=<port> --database=<database> --username=<user> --password=<password> --file=../meteocat/xema/xema-2017.csv --write=true
