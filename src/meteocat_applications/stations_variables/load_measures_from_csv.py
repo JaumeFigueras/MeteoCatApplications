@@ -191,12 +191,14 @@ if __name__ == "__main__":  # pragma: no cover
     timezone = pytz.timezone("UTC")
     if args.from_date is not None:
         from_date = dateutil.parser.isoparse(args.from_date)
-        from_date = timezone.localize(from_date)
+        if from_date.tzinfo is None or from_date.tzinfo.utcoffset(from_date) is None:
+            from_date = timezone.localize(from_date)
     else:
         from_date = datetime.datetime(1900, 1, 1, 0, 0, 0, tzinfo=pytz.UTC)
     if args.to_date is not None:
         to_date = dateutil.parser.isoparse(args.to_date)
-        to_date = timezone.localize(to_date)
+        if to_date.tzinfo is None or to_date.tzinfo.utcoffset(to_date) is None:
+            to_date = timezone.localize(to_date)
     else:
         to_date = datetime.datetime(2100, 1, 1, 0, 0, 0, tzinfo=pytz.UTC)
     if args.write is not None:
