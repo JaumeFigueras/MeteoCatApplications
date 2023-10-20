@@ -6,13 +6,14 @@ import datetime
 
 import pytz
 import sqlalchemy.exc
+from sqlalchemy import URL
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 import sys
 import csv
-from gisfire_meteocat_lib.classes.lightning import Lightning
-from gisfire_meteocat_lib.classes.lightning import LightningAPIRequest
+from meteocat.data_model.lightning import Lightning
+from meteocat.data_model.lightning import LightningAPIRequest
 
 
 def process_lightnings(db_session, csv_reader):
@@ -80,7 +81,7 @@ def process_requests(db_session, year):
             db_session.add(simulated_request)
             if i % 24 == 0:
                 print("Processed day: {0:}".format(date.strftime("%Y-%m-%d")))
-            print(i, i % 24)
+            # print(i, i % 24)
             i += 1
         db_session.commit()
     except sqlalchemy.exc.SQLAlchemyError as e:
@@ -90,6 +91,7 @@ def process_requests(db_session, year):
 
 if __name__ == "__main__":  # pragma: no cover
     # Config the program arguments
+    print("Starting...")
     # noinspection DuplicatedCode
     parser = argparse.ArgumentParser()
     parser.add_argument('-H', '--host', help='Host name were the database cluster is located')
@@ -100,11 +102,12 @@ if __name__ == "__main__":  # pragma: no cover
     parser.add_argument('-f', '--file', help='File to retrieve data from')
     args = parser.parse_args()
 
-    # Create the database session with SQL Alchemy
-    database_connection_string = 'postgresql+psycopg2://' + args.username + ':' + args.password + '@' + args.host +\
-                                 ':' + str(args.port) + '/' + args.database
+    # Create the database URL
+    database_url = URL.create('postgresql+psycopg', username=args.username, password=args.password, host=args.host,
+                              port=args.port, database=args.database)
+    # Connect to the database
     try:
-        engine = create_engine(database_connection_string)
+        engine = create_engine(database_url)
         session = Session(engine)
     except SQLAlchemyError as ex:
         print(ex)

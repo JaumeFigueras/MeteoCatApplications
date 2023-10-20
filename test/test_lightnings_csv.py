@@ -3,7 +3,7 @@
 
 from src.meteocat_applications.lightnings.load_lightnings_from_csv import process_lightnings
 from src.meteocat_applications.lightnings.load_lightnings_from_csv import process_requests
-from gisfire_meteocat_lib.classes.lightning import LightningAPIRequest
+from meteocat.data_model.lightning import LightningAPIRequest
 
 
 def test_process_lightnings_01(postgresql_schema, db_session, lightnings_csv_2017, lightnings_csv_2017_number):
@@ -22,7 +22,7 @@ def test_process_lightnings_01(postgresql_schema, db_session, lightnings_csv_201
     """
     process_lightnings(db_session, lightnings_csv_2017)
     cursor = postgresql_schema.cursor()
-    cursor.execute("SELECT count(*) FROM meteocat_lightning")
+    cursor.execute("SELECT count(*) FROM lightning")
     record = cursor.fetchone()
     assert record[0] == lightnings_csv_2017_number
 
@@ -41,7 +41,7 @@ def test_process_lightnings_02(postgresql_schema, db_session, lightnings_csv_201
     """
     process_lightnings(db_session, lightnings_csv_2017_error)
     cursor = postgresql_schema.cursor()
-    cursor.execute("SELECT count(*) FROM meteocat_lightning")
+    cursor.execute("SELECT count(*) FROM lightning")
     record = cursor.fetchone()
     assert record[0] == 0
 
@@ -63,7 +63,7 @@ def test_process_requests_01(postgresql_schema, db_session, lightnings_csv_2017,
     processed_year = process_lightnings(db_session, lightnings_csv_2017)
     process_requests(db_session, processed_year)
     cursor = postgresql_schema.cursor()
-    cursor.execute("SELECT count(*) FROM meteocat_xdde_request")
+    cursor.execute("SELECT count(*) FROM xdde_request")
     record = cursor.fetchone()
     assert record[0] == 365 * 24
 
@@ -81,12 +81,12 @@ def test_process_requests_02(postgresql_schema, db_session, lightnings_csv_2017)
     :return: None
     """
     cursor = postgresql_schema.cursor()
-    cursor.execute(("INSERT INTO meteocat_xdde_request (request_date, http_status_code, number_of_lightnings)"
+    cursor.execute(("INSERT INTO xdde_request (request_date, http_status_code, number_of_lightnings)"
                     "    VALUES ('2017-01-01T04:00:00Z', 200, 15)"))
     postgresql_schema.commit()
     assert db_session.query(LightningAPIRequest).count() == 1
     processed_year = process_lightnings(db_session, lightnings_csv_2017)
     process_requests(db_session, processed_year)
-    cursor.execute("SELECT count(*) FROM meteocat_xdde_request")
+    cursor.execute("SELECT count(*) FROM xdde_request")
     record = cursor.fetchone()
     assert record[0] == 1

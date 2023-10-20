@@ -10,10 +10,10 @@ def test_database_init_01(postgresql_schema):
     :return: None
     """
     cursor = postgresql_schema.cursor()
-    cursor.execute("SELECT count(*) FROM meteocat_xdde_request")
+    cursor.execute("SELECT count(*) FROM xdde_request")
     record = cursor.fetchone()
     assert record[0] == 0
     cursor = postgresql_schema.cursor()
-    cursor.execute("SELECT count(*) FROM meteocat_lightning")
+    cursor.execute("SELECT count(*) FROM lightning")
     record = cursor.fetchone()
     assert record[0] == 0

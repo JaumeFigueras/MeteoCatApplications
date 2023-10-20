@@ -5,9 +5,9 @@ import sys
 import dateutil.parser
 import pytz
 import requests.exceptions
-from gisfire_meteocat_lib.classes.lightning import Lightning
-from gisfire_meteocat_lib.classes.lightning import LightningAPIRequest
-from gisfire_meteocat_lib.remote_api.meteocat_xdde_api import get_lightnings
+from meteocat.data_model.lightning import Lightning
+from meteocat.data_model.lightning import LightningAPIRequest
+from meteocat.api.meteocat_xdde_api import get_lightnings
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session

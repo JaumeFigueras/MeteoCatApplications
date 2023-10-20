@@ -1,8 +1,9 @@
 import argparse
 import sys
 
-from gisfire_meteocat_lib.classes.weather_station import WeatherStation
-from gisfire_meteocat_lib.remote_api.meteocat_xema_api import get_weather_stations
+from meteocat.data_model.weather_station import WeatherStation
+from meteocat.api.meteocat_xema_api import get_weather_stations
+from sqlalchemy import URL
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -11,7 +12,7 @@ from sqlalchemy.orm import Session
 def store_station_to_database(db_session: Session, station: WeatherStation) -> None:
     try:
         db_session.add(station)
-        db_session.add_all(station.states)
+        # db_session.add_all(station.states)
         db_session.commit()
     except SQLAlchemyError as e:
         print("Error found in database insert for station {0:}. Rolling back all changes. Exception text: {1:}".format(
@@ -34,10 +35,10 @@ def main():  # pragma: no cover
     args = parser.parse_args()
 
     # Create the database session with SQL Alchemy
-    database_connection_string = 'postgresql+psycopg2://' + args.username + ':' + args.password + '@' + args.host +\
-                                 ':' + str(args.port) + '/' + args.database
+    database_url = URL.create('postgresql+psycopg', username=args.username, password=args.password, host=args.host,
+                              port=args.port, database=args.database)
     try:
-        engine = create_engine(database_connection_string)
+        engine = create_engine(database_url)
         session = Session(engine)
     except SQLAlchemyError as ex:
         print(ex)

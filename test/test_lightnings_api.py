@@ -3,9 +3,9 @@
 
 from src.meteocat_applications.lightnings.load_lightnings_from_api import find_dates_to_issue_requests
 from src.meteocat_applications.lightnings.load_lightnings_from_api import run_request
-from gisfire_meteocat_lib.classes.lightning import Lightning
-from gisfire_meteocat_lib.classes.lightning import LightningAPIRequest
-from gisfire_meteocat_lib.remote_api import meteocat_urls
+from meteocat.data_model.lightning import Lightning
+from meteocat.data_model.lightning import LightningAPIRequest
+from meteocat.api import meteocat_urls
 import datetime
 import pytz
 import requests
@@ -67,7 +67,7 @@ def test_find_dates_04(postgresql_schema, db_session):
     :return: None
     """
     cursor = postgresql_schema.cursor()
-    cursor.execute(("INSERT INTO meteocat_xdde_request (request_date, http_status_code, number_of_lightnings)"
+    cursor.execute(("INSERT INTO xdde_request (request_date, http_status_code, number_of_lightnings)"
                     "    VALUES ('2021-11-10T00:00:00Z', 200, 15)"))
     postgresql_schema.commit()
     result = find_dates_to_issue_requests(db_session, datetime.date(2021, 11, 10), -1)
@@ -210,7 +210,7 @@ def test_run_requests_04(requests_mock, postgresql_schema, db_session, lightning
         requests_mock.get(url, json=lightnings_json_2021_11_10[i], status_code=200)
     requests_to_perform = find_dates_to_issue_requests(db_session, datetime.date(2021, 11, 10), -1)
     cursor = postgresql_schema.cursor()
-    cursor.execute(("INSERT INTO meteocat_xdde_request (request_date, http_status_code, number_of_lightnings)"
+    cursor.execute(("INSERT INTO xdde_request (request_date, http_status_code, number_of_lightnings)"
                     "    VALUES ('2021-11-10T00:00:00Z', 200, 15)"))
     postgresql_schema.commit()
     for request_date in requests_to_perform:

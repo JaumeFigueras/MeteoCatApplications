@@ -3,12 +3,12 @@
 
 from pytest_postgresql import factories
 from pathlib import Path
-import gisfire_meteocat_lib.database
+import meteocat.database
 import tempfile
 
 
 test_folder = Path(__file__).parent
-sql_meteocat_lib_folder = Path(gisfire_meteocat_lib.database.__file__).parent
+sql_meteocat_lib_folder = Path(meteocat.database.__file__).parent
 socket_dir = tempfile.TemporaryDirectory()
 postgresql_session = factories.postgresql_proc(port=None, unixsocketdir=socket_dir.name)
 postgresql_schema = factories.postgresql('postgresql_session', dbname='test', load=[

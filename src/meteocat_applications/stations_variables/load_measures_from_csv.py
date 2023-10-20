@@ -9,22 +9,23 @@ import time
 
 import pytz
 import sqlalchemy.exc
+from sqlalchemy import URL
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 import sys
 import csv
-from gisfire_meteocat_lib.classes.measure import Measure
-from gisfire_meteocat_lib.classes.measure import MeasureValidityCategory
-from gisfire_meteocat_lib.classes.measure import MeasureTimeBaseCategory
-from gisfire_meteocat_lib.classes.weather_station import WeatherStation
-from gisfire_meteocat_lib.classes.variable import Variable
-from gisfire_meteocat_lib.classes.variable import VariableState
-from gisfire_meteocat_lib.classes.variable import VariableTimeBase
-from gisfire_meteocat_lib.classes.variable import VariableStateCategory
-from gisfire_meteocat_lib.classes.variable import VariableTimeBaseCategory
-from gisfire_meteocat_lib.classes.relations import WeatherStationVariableStateAssociation
-from gisfire_meteocat_lib.classes.relations import WeatherStationVariableTimeBaseAssociation
+from meteocat.data_model.measure import Measure
+from meteocat.data_model.measure import MeasureValidityCategory
+from meteocat.data_model.measure import MeasureTimeBaseCategory
+from meteocat.data_model.weather_station import WeatherStation
+from meteocat.data_model.variable import Variable
+from meteocat.data_model.variable import VariableState
+from meteocat.data_model.variable import VariableTimeBase
+from meteocat.data_model.variable import VariableStateCategory
+from meteocat.data_model.variable import VariableTimeBaseCategory
+from meteocat.data_model.relations import AssociationStationVariableState
+from meteocat.data_model.relations import AssociationStationVariableTimeBase
 from typing import List
 from typing import Dict
 from typing import Union
@@ -96,10 +97,10 @@ def process_measure(db_session: sqlalchemy.orm.Session, csv_row: List[str],
         sys.exit()
     current_variable: Variable = variables_in_database[variable_code]
     # Station and variable exist, so the WeatherStationVariableStateAssociation has to be tested and has to be active
-    states_of_variable_in_station: List[WeatherStationVariableStateAssociation] = db_session.\
-        query(WeatherStationVariableStateAssociation).\
-        filter(WeatherStationVariableStateAssociation.station == current_station).\
-        filter(WeatherStationVariableStateAssociation.variable == current_variable).\
+    states_of_variable_in_station: List[AssociationStationVariableState] = db_session.\
+        query(AssociationStationVariableState).\
+        filter(AssociationStationVariableState.station == current_station).\
+        filter(AssociationStationVariableState.variable == current_variable).\
         all()
     # IMPROVE: This code can be improved with a more complex join in the query
     if states_of_variable_in_station is None:
@@ -117,10 +118,10 @@ def process_measure(db_session: sqlalchemy.orm.Session, csv_row: List[str],
         sys.exit()
     # END IMPROVE
     # Station and variable exist, so the WeatherStationVariableTimeBaseAssociation has to be tested and has to be the same time base as the measure
-    time_base_of_variable_in_station: List[WeatherStationVariableTimeBaseAssociation] = db_session.\
-        query(WeatherStationVariableTimeBaseAssociation).\
-        filter(WeatherStationVariableTimeBaseAssociation.station == current_station).\
-        filter(WeatherStationVariableTimeBaseAssociation.variable == current_variable).\
+    time_base_of_variable_in_station: List[AssociationStationVariableTimeBase] = db_session.\
+        query(AssociationStationVariableTimeBase).\
+        filter(AssociationStationVariableTimeBase.station == current_station).\
+        filter(AssociationStationVariableTimeBase.variable == current_variable).\
         all()
     # IMPROVE: This code can be improved with a more complex join in the query
     if time_base_of_variable_in_station is None:
@@ -170,14 +171,15 @@ if __name__ == "__main__":  # pragma: no cover
     args = parser.parse_args()
 
     # Create the database session with SQL Alchemy
-    database_connection_string = 'postgresql+psycopg2://' + args.username + ':' + args.password + '@' + args.host +\
-                                 ':' + str(args.port) + '/' + args.database
+    database_url = URL.create('postgresql+psycopg', username=args.username, password=args.password, host=args.host,
+                              port=args.port, database=args.database)
     try:
-        engine = create_engine(database_connection_string)
+        engine = create_engine(database_url)
         session = Session(engine)
     except SQLAlchemyError as ex:
         print(ex)
         sys.exit(-1)
+
 
     # Create the CSV file reader
     try:
@@ -213,9 +215,13 @@ if __name__ == "__main__":  # pragma: no cover
     for row in reader:
         if row[3] != str_date:
             str_date = row[3]
-            print(str_date, ' - Elapsed time: ', int(time.time() - start)), ' s'
+            current_date = datetime.datetime.strptime(row[3], "%d/%m/%Y %I:%M:%S %p")
+            current_date = timezone.localize(current_date)
+            if current_date >= from_date:
+                print(str_date, ' - Elapsed time: ', int(time.time() - start)), ' s'
         current_date = datetime.datetime.strptime(row[3], "%d/%m/%Y %I:%M:%S %p")
         current_date = timezone.localize(current_date)
         if from_date <= current_date < to_date:
             process_measure(session, row, stations, variables, write)
-
+        if current_date > to_date:
+            break

@@ -1,12 +1,13 @@
 import argparse
 import sys
 
-from gisfire_meteocat_lib.classes.weather_station import WeatherStation
-from gisfire_meteocat_lib.classes.variable import Variable
-from gisfire_meteocat_lib.classes.variable import VariableCategory
-from gisfire_meteocat_lib.classes.relations import WeatherStationVariableStateAssociation
-from gisfire_meteocat_lib.classes.relations import WeatherStationVariableTimeBaseAssociation
-from gisfire_meteocat_lib.remote_api.meteocat_xema_api import get_variables_from_station
+from meteocat.data_model.weather_station import WeatherStation
+from meteocat.data_model.variable import Variable
+from meteocat.data_model.variable import VariableCategory
+from meteocat.data_model.relations import AssociationStationVariableState
+from meteocat.data_model.relations import AssociationStationVariableTimeBase
+from meteocat.api.meteocat_xema_api import get_variables_from_station
+from sqlalchemy import URL
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -30,14 +31,14 @@ def store_variables_to_database(db_session: Session, variables: List[Variable], 
             if process_variable.category != VariableCategory.CMV or (process_variable.category == VariableCategory.CMV and hasattr(variable, 'states') and variable.states is not None):
                 for state in variable.states:
                     db_session.add(state)
-                    relation = WeatherStationVariableStateAssociation()
+                    relation = AssociationStationVariableState()
                     relation.station = station
                     relation.variable = process_variable
                     relation.state = state
                     db_session.add(relation)
             for time_base in variable.time_bases:
                 db_session.add(time_base)
-                relation = WeatherStationVariableTimeBaseAssociation()
+                relation = AssociationStationVariableTimeBase()
                 relation.station = station
                 relation.variable = process_variable
                 relation.time_base = time_base
@@ -64,10 +65,10 @@ def main():  # pragma: no cover
     args = parser.parse_args()
 
     # Create the database session with SQL Alchemy
-    database_connection_string = 'postgresql+psycopg2://' + args.username + ':' + args.password + '@' + args.host +\
-                                 ':' + str(args.port) + '/' + args.database
+    database_url = URL.create('postgresql+psycopg', username=args.username, password=args.password, host=args.host,
+                              port=args.port, database=args.database)
     try:
-        engine = create_engine(database_connection_string)
+        engine = create_engine(database_url)
         session = Session(engine)
     except SQLAlchemyError as ex:
         print(ex)

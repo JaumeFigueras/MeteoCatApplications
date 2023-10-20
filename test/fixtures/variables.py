@@ -5,7 +5,7 @@ import pytest
 import zipfile
 import json
 from pathlib import Path
-from gisfire_meteocat_lib.classes.variable import Variable
+from meteocat.data_model.variable import Variable
 
 from typing import List
 
